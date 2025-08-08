@@ -1,51 +1,60 @@
 {% set name = "vertica-python" %}
-{% set version = "1.0.1" %}
-{% set bundle = "tar.gz" %}
-{% set hash_type = "sha256" %}
-{% set hash = "94cff37e03f89fc4c5e4b2d4c913c7d5d7450f5a205d14f709b39e0a4202be95" %}
+{% set version = "1.4.0" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ bundle }}
-  {{ hash_type }}: {{ hash }}
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 542078ae2fedee694adedb04d81c6edc277b87ed7440302942107d86a0bcd445
 
 build:
-  noarch: python
   number: 0
-  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
+  skip: true # [py<37]
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
     - python
     - pip
-
+    - wheel
+    - setuptools
   run:
     - python
     - python-dateutil >=1.5
-    - pytz
-    - future
     - six >=1.10.0
-    - psycopg2 >=2.5.1
 
 test:
   imports:
     - vertica_python
-    - vertica_python.tests
     - vertica_python.vertica
     - vertica_python.vertica.messages
     - vertica_python.vertica.messages.backend_messages
     - vertica_python.vertica.messages.frontend_messages
+    - vertica_python.vertica.mixins
+  source_files:
+    - vertica_python/tests/unit_tests
+  requires:
+    - pip
+    - pytest
+    - mock
+  commands:
+    - pip check
+    - pytest -v --pyargs vertica_python.tests.unit_tests
 
 about:
-  home: https://github.com/uber/vertica-python/
+  home: https://github.com/vertica/vertica-python
   license_file: LICENSE
-  license: MIT
-  license_family: MIT
+  license: Apache-2.0
+  license_family: APACHE
   summary: A native Python client for the Vertica database.
-  dev_url: https://github.com/uber/vertica-python/
+  description: |
+    vertica-python is a native Python client for the Vertica (http://www.vertica.com) database.
+    vertica-python is the replacement of the deprecated Python client vertica_db_client,
+    which was removed since Vertica server version 9.3.
+  dev_url: https://github.com/vertica/vertica-python/tree/1.4.0
+  doc_url: https://github.com/vertica/vertica-python/blob/1.4.0/README.md
 
 extra:
   recipe-maintainers:
